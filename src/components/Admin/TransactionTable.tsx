@@ -39,8 +39,8 @@ import AddTransactionModal from './AddTransactionModal'
 import { transactionType } from "../../data/selection";
 
 const transactionColorMap: Record<string, ChipProps["color"]> = {
-  deposit: "danger",
-  withdrawal: "success",
+  deposit: "success",
+  withdrawal: "danger",
   payment: "danger",
   send: "danger",
   receive: "success"
@@ -118,8 +118,8 @@ export default function DataTable({ transactions }: { transactions: Transaction[
           <div className="flex flex-row">
             <span className={`text-lg text-${transactionColorMap[transaction.TransactionType]} cursor-pointer active:opacity-50`}>                
             <>
-                {(transaction.TransactionType === 'send' || transaction.TransactionType === 'deposit' || transaction.TransactionType === 'payment') && <MinusIcon />}
-                {(transaction.TransactionType === 'receive' || transaction.TransactionType === 'withdrawal') && <PlusIcon />}
+                {(transaction.TransactionType === 'send' || transaction.TransactionType === 'withdrawal' || transaction.TransactionType === 'payment') && <MinusIcon />}
+                {(transaction.TransactionType === 'receive' || transaction.TransactionType === 'deposit') && <PlusIcon />}
             </>
             </span>
             <p className="text-bold text-base capitalize">{cellValue.toLocaleString('en-US', { style: 'currency', currency: 'PHP', maximumFractionDigits: 2 })}</p>
@@ -244,7 +244,7 @@ export default function DataTable({ transactions }: { transactions: Transaction[
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <AddTransactionModal />
+            <AddTransactionModal transactions_length={transactions.length} />
           </div>
         </div>
         <div className="flex justify-between items-center">

@@ -33,6 +33,7 @@ import {students} from "@/data/dummy";
 import {studentColumns} from "@/utils/columns";
 import {statusOptions} from "@/data/data";
 import {capitalize} from "@/utils/utils";
+import AddStudentModal from "./AddStudentModal";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   active: "success",
@@ -240,9 +241,7 @@ export default function DataTable({ students }: { students: Student[] }) {
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" endContent={<PlusIcon />}>
-              Add New
-            </Button>
+            <AddStudentModal />
           </div>
         </div>
         <div className="flex justify-between items-center">
