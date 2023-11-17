@@ -1,7 +1,7 @@
 "use client"
 
 import StudentTable from "@/components/StudentTable";
-import {fetchStudent} from "@/utils/fetch";
+import {fetchAllStudents} from "@/utils/fetch";
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from "react";
 import {Student} from "@/types/objects";
@@ -9,7 +9,7 @@ import {Student} from "@/types/objects";
 export default function Students() {
     const { isLoading, isError, data, error } = useQuery({
       queryKey: ['students'],
-      queryFn: fetchStudent,
+      queryFn: fetchAllStudents,
     })
 
     if (isLoading) {

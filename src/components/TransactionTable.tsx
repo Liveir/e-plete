@@ -23,6 +23,7 @@ import {
   Tooltip
 } from "@nextui-org/react";
 import {PlusIcon} from "./Icons/PlusIcon";
+import {MinusIcon} from "./Icons/MinusIcon";
 import {VerticalDotsIcon} from "./Icons/VerticalDotsIcon";
 import {ChevronDownIcon} from "./Icons/ChevronDownIcon";
 import {SearchIcon} from "./Icons/SearchIcon";
@@ -35,10 +36,14 @@ import {statusOptions} from "@/data/data";
 import {capitalize} from "@/utils/utils";
 import {Transaction} from "@/types/objects"
 
-const INITIAL_VISIBLE_COLUMNS = ["TransactionId", "Student_id", "TransactionDate", "TransactionTime", "actions"];
+const statusColorMap: Record<string, ChipProps["color"]> = {
+  send: "danger",
+  receive: "success"
+};
 
+const INITIAL_VISIBLE_COLUMNS = ["TransactionId", "Student", "TransactionDate", "TransactionAmount", "actions"];
 
-export default function DataTable({ transactionss }: { transactionss: Transaction[] }) {
+export default function DataTable({ transactions }: { transactions: Transaction[] }) {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -63,13 +68,13 @@ export default function DataTable({ transactionss }: { transactionss: Transactio
     let filteredTransactions = [...transactions];
 
     if (hasSearchFilter) {
-      filteredTransactions = filteredTransactions.filter((transaction) =>
-        transaction.Student_id,
+      filteredTransactions = filteredTransactions.filter((transactions) =>
+        transactions.TransactionDate.includes(filterValue.toLowerCase()),
       );
     }
 
     return filteredTransactions;
-  }, [hasSearchFilter, filterValue]);
+  }, [transactions, hasSearchFilter, filterValue]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -94,6 +99,34 @@ export default function DataTable({ transactionss }: { transactionss: Transactio
     const cellValue = transaction[columnKey as keyof Transaction];
 
     switch (columnKey) {
+      case "Student":
+        return (
+          <User
+            description={transaction.StudentId}
+            name={transaction.StudentName}
+          >
+            {transaction.StudentId}
+          </User>
+        );
+      case "TransactionAmount":
+        return (
+          <div className="flex flex-row">
+            <span className={`text-lg text-${statusColorMap[transaction.TransactionType]} cursor-pointer active:opacity-50`}>                
+            <>
+              {transaction.TransactionType === 'send' && <MinusIcon />}
+              {transaction.TransactionType === 'receive' && <PlusIcon />}
+            </>
+            </span>
+            <p className="text-bold text-base capitalize">{cellValue.toLocaleString('en-US', { style: 'currency', currency: 'PHP', maximumFractionDigits: 2 })}</p>
+          </div>
+        );
+      case "TransactionDate":
+        return (
+          <div className="flex flex-col">
+            <p className="text-bold text-sm capitalize">{cellValue}</p>
+            <p className="text-bold text-sm capitalize text-default-400">{transaction.TransactionTime}</p>
+          </div>
+        );
       case "actions":
         return (
           <div className="relative flex items-center gap-2">
@@ -227,7 +260,7 @@ export default function DataTable({ transactionss }: { transactionss: Transactio
         </div>
       </div>
     );
-  }, [filterValue, onSearchChange, statusFilter, visibleColumns, onRowsPerPageChange, onClear]);
+  }, [filterValue, onSearchChange, statusFilter, visibleColumns, transactions.length, onRowsPerPageChange, onClear]);
 
   const bottomContent = React.useMemo(() => {
     return (
@@ -257,8 +290,6 @@ export default function DataTable({ transactionss }: { transactionss: Transactio
       </div>
     );
   }, [selectedKeys, filteredItems.length, page, pages, onPreviousPage, onNextPage]);
-
-  console.log("TEST")
   return (
     <Table
       aria-label="Example table with custom cells, pagination and sorting"

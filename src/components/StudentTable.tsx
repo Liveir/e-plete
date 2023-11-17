@@ -33,7 +33,6 @@ import {students} from "@/data/dummy";
 import {studentColumns} from "@/utils/columns";
 import {statusOptions} from "@/data/data";
 import {capitalize} from "@/utils/utils";
-import {Student} from "@/types/objects"
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
   active: "success",
@@ -44,6 +43,7 @@ const statusColorMap: Record<string, ChipProps["color"]> = {
 
 const INITIAL_VISIBLE_COLUMNS = ["StudentName", "StudentId", "StudentBalance", "StudentStatus", "actions"];
 
+type Student = typeof students[0]
 
 export default function DataTable({ students }: { students: Student[] }) {
   const [filterValue, setFilterValue] = React.useState("");
@@ -81,7 +81,7 @@ export default function DataTable({ students }: { students: Student[] }) {
     }
 
     return filteredStudents;
-  }, [hasSearchFilter, statusFilter, filterValue]);
+  }, [students, hasSearchFilter, statusFilter, filterValue]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -116,10 +116,10 @@ export default function DataTable({ students }: { students: Student[] }) {
             {student.StudentEmail}
           </User>
         );
-      case "role":
+      case "StudentBalance":
         return (
-          <div className="flex flex-col">
-            <p className="text-bold text-small capitalize">{cellValue}</p>
+          <div className="flex flex-row">
+            <p className="text-bold text-base capitalize">{cellValue.toLocaleString('en-US', { style: 'currency', currency: 'PHP', maximumFractionDigits: 2 })}</p>
           </div>
         );
       case "StudentStatus":
@@ -261,7 +261,7 @@ export default function DataTable({ students }: { students: Student[] }) {
         </div>
       </div>
     );
-  }, [filterValue, onSearchChange, statusFilter, visibleColumns, onRowsPerPageChange, onClear]);
+  }, [filterValue, onSearchChange, statusFilter, visibleColumns, students.length, onRowsPerPageChange, onClear]);
 
   const bottomContent = React.useMemo(() => {
     return (

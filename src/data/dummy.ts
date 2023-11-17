@@ -18,6 +18,7 @@ const transactions = [
     TransactionTime: "01:50",
     TransactionAmount: -123.00,
     Student_id: 201026633,
+    TransactionType: "payment",
   },
 ];
 

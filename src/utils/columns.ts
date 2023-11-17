@@ -9,10 +9,10 @@ const studentColumns = [
 ];
 
 const transactionColumns = [
-    {name: "ID", uid: "TransactionId", sortable: true},
-    {name: "STUDENT NO.", uid: "Student_id", sortable: true},
-    {name: "DATE", uid: "TransactionDate", sortable: true},
-    {name: "TIME", uid: "TransactionTime"},
+    {name: "REF #", uid: "TransactionId", sortable: true},
+    {name: "STUDENT", uid: "Student", sortable: true},
+    {name: "DATE & TIME", uid: "TransactionDate", sortable: true},
+    {name: "TRANSACTION", uid: "TransactionAmount"},
     {name: "ACTIONS", uid: "actions"},
   ];
   
