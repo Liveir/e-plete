@@ -22,21 +22,26 @@ import {
   SortDescriptor,
   Tooltip
 } from "@nextui-org/react";
-import {PlusIcon} from "./Icons/PlusIcon";
-import {MinusIcon} from "./Icons/MinusIcon";
-import {VerticalDotsIcon} from "./Icons/VerticalDotsIcon";
-import {ChevronDownIcon} from "./Icons/ChevronDownIcon";
-import {SearchIcon} from "./Icons/SearchIcon";
-import {EyeIcon} from "./Icons/EyeIcon";
-import {EditIcon} from "./Icons/EditIcon";
-import {DeleteIcon} from "./Icons/DeleteIcon";
+import {PlusIcon} from "../Icons/PlusIcon";
+import {MinusIcon} from "../Icons/MinusIcon";
+import {VerticalDotsIcon} from "../Icons/VerticalDotsIcon";
+import {ChevronDownIcon} from "../Icons/ChevronDownIcon";
+import {SearchIcon} from "../Icons/SearchIcon";
+import {EyeIcon} from "../Icons/EyeIcon";
+import {EditIcon} from "../Icons/EditIcon";
+import {DeleteIcon} from "../Icons/DeleteIcon";
 import {transactions} from "@/data/dummy";
 import {transactionColumns} from "@/utils/columns";
 import {statusOptions} from "@/data/data";
 import {capitalize} from "@/utils/utils";
 import {Transaction} from "@/types/objects"
+import AddTransactionModal from './AddTransactionModal'
+import { transactionType } from "../../data/selection";
 
-const statusColorMap: Record<string, ChipProps["color"]> = {
+const transactionColorMap: Record<string, ChipProps["color"]> = {
+  deposit: "danger",
+  withdrawal: "success",
+  payment: "danger",
   send: "danger",
   receive: "success"
 };
@@ -111,10 +116,10 @@ export default function DataTable({ transactions }: { transactions: Transaction[
       case "TransactionAmount":
         return (
           <div className="flex flex-row">
-            <span className={`text-lg text-${statusColorMap[transaction.TransactionType]} cursor-pointer active:opacity-50`}>                
+            <span className={`text-lg text-${transactionColorMap[transaction.TransactionType]} cursor-pointer active:opacity-50`}>                
             <>
-              {transaction.TransactionType === 'send' && <MinusIcon />}
-              {transaction.TransactionType === 'receive' && <PlusIcon />}
+                {(transaction.TransactionType === 'send' || transaction.TransactionType === 'deposit' || transaction.TransactionType === 'payment') && <MinusIcon />}
+                {(transaction.TransactionType === 'receive' || transaction.TransactionType === 'withdrawal') && <PlusIcon />}
             </>
             </span>
             <p className="text-bold text-base capitalize">{cellValue.toLocaleString('en-US', { style: 'currency', currency: 'PHP', maximumFractionDigits: 2 })}</p>
@@ -239,9 +244,7 @@ export default function DataTable({ transactions }: { transactions: Transaction[
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" endContent={<PlusIcon />}>
-              Add New
-            </Button>
+            <AddTransactionModal />
           </div>
         </div>
         <div className="flex justify-between items-center">

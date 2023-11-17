@@ -22,13 +22,13 @@ import {
   SortDescriptor,
   Tooltip
 } from "@nextui-org/react";
-import {PlusIcon} from "./Icons/PlusIcon";
-import {VerticalDotsIcon} from "./Icons/VerticalDotsIcon";
-import {ChevronDownIcon} from "./Icons/ChevronDownIcon";
-import {SearchIcon} from "./Icons/SearchIcon";
-import {EyeIcon} from "./Icons/EyeIcon";
-import {EditIcon} from "./Icons/EditIcon";
-import {DeleteIcon} from "./Icons/DeleteIcon";
+import {PlusIcon} from "../Icons/PlusIcon";
+import {VerticalDotsIcon} from "../Icons/VerticalDotsIcon";
+import {ChevronDownIcon} from "../Icons/ChevronDownIcon";
+import {SearchIcon} from "../Icons/SearchIcon";
+import {EyeIcon} from "../Icons/EyeIcon";
+import {EditIcon} from "../Icons/EditIcon";
+import {DeleteIcon} from "../Icons/DeleteIcon";
 import {students} from "@/data/dummy";
 import {studentColumns} from "@/utils/columns";
 import {statusOptions} from "@/data/data";
