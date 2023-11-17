@@ -1,7 +1,7 @@
 "use client"
 
-import TransactionTable from "@/components/TransactionTable";
-import { fetchAllTransactions, fetchStudent } from "@/utils/fetch";
+import TransactionTable from "@/components/Admin/TransactionTable";
+import { fetchAllTransactions, fetchStudent } from "@/utils/queries";
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from "react";
 import { Transaction, TransactionJSON } from "@/types/objects";

@@ -22,30 +22,33 @@ import {
   SortDescriptor,
   Tooltip
 } from "@nextui-org/react";
-import {PlusIcon} from "./Icons/PlusIcon";
-import {VerticalDotsIcon} from "./Icons/VerticalDotsIcon";
-import {ChevronDownIcon} from "./Icons/ChevronDownIcon";
-import {SearchIcon} from "./Icons/SearchIcon";
-import {EyeIcon} from "./Icons/EyeIcon";
-import {EditIcon} from "./Icons/EditIcon";
-import {DeleteIcon} from "./Icons/DeleteIcon";
-import {students} from "@/data/dummy";
-import {studentColumns} from "@/utils/columns";
+import {PlusIcon} from "../Icons/PlusIcon";
+import {MinusIcon} from "../Icons/MinusIcon";
+import {VerticalDotsIcon} from "../Icons/VerticalDotsIcon";
+import {ChevronDownIcon} from "../Icons/ChevronDownIcon";
+import {SearchIcon} from "../Icons/SearchIcon";
+import {EyeIcon} from "../Icons/EyeIcon";
+import {EditIcon} from "../Icons/EditIcon";
+import {DeleteIcon} from "../Icons/DeleteIcon";
+import {transactions} from "@/data/dummy";
+import {transactionColumns} from "@/utils/columns";
 import {statusOptions} from "@/data/data";
 import {capitalize} from "@/utils/utils";
+import {Transaction} from "@/types/objects"
+import AddTransactionModal from './AddTransactionModal'
+import { transactionType } from "../../data/selection";
 
-const statusColorMap: Record<string, ChipProps["color"]> = {
-  active: "success",
-  inactive: "secondary",
-  restricted: "warning",
-  banned: "danger",
+const transactionColorMap: Record<string, ChipProps["color"]> = {
+  deposit: "success",
+  withdrawal: "danger",
+  payment: "danger",
+  send: "danger",
+  receive: "success"
 };
 
-const INITIAL_VISIBLE_COLUMNS = ["StudentName", "StudentId", "StudentBalance", "StudentStatus", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["TransactionId", "Student", "TransactionDate", "TransactionAmount", "actions"];
 
-type Student = typeof students[0]
-
-export default function DataTable({ students }: { students: Student[] }) {
+export default function DataTable({ transactions }: { transactions: Transaction[] }) {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -61,27 +64,22 @@ export default function DataTable({ students }: { students: Student[] }) {
   const hasSearchFilter = Boolean(filterValue);
 
   const headerColumns = React.useMemo(() => {
-    if (visibleColumns === "all") return studentColumns;
+    if (visibleColumns === "all") return transactionColumns;
 
-    return studentColumns.filter((column) => Array.from(visibleColumns).includes(column.uid));
+    return transactionColumns.filter((column) => Array.from(visibleColumns).includes(column.uid));
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredStudents = [...students];
+    let filteredTransactions = [...transactions];
 
     if (hasSearchFilter) {
-      filteredStudents = filteredStudents.filter((student) =>
-        student.StudentName.toLowerCase().includes(filterValue.toLowerCase()),
-      );
-    }
-    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
-      filteredStudents = filteredStudents.filter((student) =>
-        Array.from(statusFilter).includes(student.StudentStatus),
+      filteredTransactions = filteredTransactions.filter((transactions) =>
+        transactions.TransactionDate.includes(filterValue.toLowerCase()),
       );
     }
 
-    return filteredStudents;
-  }, [students, hasSearchFilter, statusFilter, filterValue]);
+    return filteredTransactions;
+  }, [transactions, hasSearchFilter, filterValue]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -93,40 +91,46 @@ export default function DataTable({ students }: { students: Student[] }) {
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: Student, b: Student) => {
-      const first = a[sortDescriptor.column as keyof Student] as number;
-      const second = b[sortDescriptor.column as keyof Student] as number;
+    return [...items].sort((a: Transaction, b: Transaction) => {
+      const first = a[sortDescriptor.column as keyof Transaction] as number;
+      const second = b[sortDescriptor.column as keyof Transaction] as number;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((student: Student, columnKey: React.Key) => {
-    const cellValue = student[columnKey as keyof Student];
+  const renderCell = React.useCallback((transaction: Transaction, columnKey: React.Key) => {
+    const cellValue = transaction[columnKey as keyof Transaction];
 
     switch (columnKey) {
-      case "StudentName":
+      case "Student":
         return (
           <User
-            //avatarProps={{radius: "lg", src: student.avatar}}
-            description={student.StudentEmail}
-            name={cellValue}
+            description={transaction.StudentId}
+            name={transaction.StudentName}
           >
-            {student.StudentEmail}
+            {transaction.StudentId}
           </User>
         );
-      case "StudentBalance":
+      case "TransactionAmount":
         return (
           <div className="flex flex-row">
+            <span className={`text-lg text-${transactionColorMap[transaction.TransactionType]} cursor-pointer active:opacity-50`}>                
+            <>
+                {(transaction.TransactionType === 'send' || transaction.TransactionType === 'withdrawal' || transaction.TransactionType === 'payment') && <MinusIcon />}
+                {(transaction.TransactionType === 'receive' || transaction.TransactionType === 'deposit') && <PlusIcon />}
+            </>
+            </span>
             <p className="text-bold text-base capitalize">{cellValue.toLocaleString('en-US', { style: 'currency', currency: 'PHP', maximumFractionDigits: 2 })}</p>
           </div>
         );
-      case "StudentStatus":
+      case "TransactionDate":
         return (
-          <Chip className="capitalize" color={statusColorMap[student.StudentStatus]} size="sm" variant="flat">
-            {cellValue}
-          </Chip>
+          <div className="flex flex-col">
+            <p className="text-bold text-sm capitalize">{cellValue}</p>
+            <p className="text-bold text-sm capitalize text-default-400">{transaction.TransactionTime}</p>
+          </div>
         );
       case "actions":
         return (
@@ -136,12 +140,12 @@ export default function DataTable({ students }: { students: Student[] }) {
                 <EyeIcon />
               </span>
             </Tooltip>
-            <Tooltip content="Edit student">
+            <Tooltip content="Edit transaction">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
                 <EditIcon />
               </span>
             </Tooltip>
-            <Tooltip color="danger" content="Delete student">
+            <Tooltip color="danger" content="Delete transaction">
               <span className="text-lg text-danger cursor-pointer active:opacity-50">
                 <DeleteIcon />
               </span>
@@ -191,7 +195,7 @@ export default function DataTable({ students }: { students: Student[] }) {
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
-            placeholder="Search by name..."
+            placeholder="Search by student number..."
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -233,20 +237,18 @@ export default function DataTable({ students }: { students: Student[] }) {
                 selectionMode="multiple"
                 onSelectionChange={setVisibleColumns}
               >
-                {studentColumns.map((column) => (
+                {transactionColumns.map((column) => (
                   <DropdownItem key={column.uid} className="capitalize">
                     {capitalize(column.name)}
                   </DropdownItem>
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" endContent={<PlusIcon />}>
-              Add New
-            </Button>
+            <AddTransactionModal transactions_length={transactions.length} />
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {students.length} students</span>
+          <span className="text-default-400 text-small">Total {transactions.length} transactions</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -261,7 +263,7 @@ export default function DataTable({ students }: { students: Student[] }) {
         </div>
       </div>
     );
-  }, [filterValue, onSearchChange, statusFilter, visibleColumns, students.length, onRowsPerPageChange, onClear]);
+  }, [filterValue, onSearchChange, statusFilter, visibleColumns, transactions.length, onRowsPerPageChange, onClear]);
 
   const bottomContent = React.useMemo(() => {
     return (
@@ -291,8 +293,6 @@ export default function DataTable({ students }: { students: Student[] }) {
       </div>
     );
   }, [selectedKeys, filteredItems.length, page, pages, onPreviousPage, onNextPage]);
-
-  console.log("TEST")
   return (
     <Table
       aria-label="Example table with custom cells, pagination and sorting"
@@ -321,9 +321,9 @@ export default function DataTable({ students }: { students: Student[] }) {
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody emptyContent={"No students found"} items={sortedItems}>
+      <TableBody emptyContent={"No transactions found"} items={sortedItems}>
         {(item) => (
-          <TableRow key={item.StudentId}>
+          <TableRow key={item.TransactionId}>
             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
           </TableRow>
         )}

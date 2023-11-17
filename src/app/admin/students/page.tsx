@@ -1,7 +1,7 @@
 "use client"
 
-import StudentTable from "@/components/StudentTable";
-import {fetchAllStudents} from "@/utils/fetch";
+import StudentTable from "@/components/Admin/StudentTable";
+import {fetchAllStudents} from "@/utils/queries";
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from "react";
 import {Student} from "@/types/objects";

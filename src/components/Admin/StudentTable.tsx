@@ -22,28 +22,31 @@ import {
   SortDescriptor,
   Tooltip
 } from "@nextui-org/react";
-import {PlusIcon} from "./Icons/PlusIcon";
-import {MinusIcon} from "./Icons/MinusIcon";
-import {VerticalDotsIcon} from "./Icons/VerticalDotsIcon";
-import {ChevronDownIcon} from "./Icons/ChevronDownIcon";
-import {SearchIcon} from "./Icons/SearchIcon";
-import {EyeIcon} from "./Icons/EyeIcon";
-import {EditIcon} from "./Icons/EditIcon";
-import {DeleteIcon} from "./Icons/DeleteIcon";
-import {transactions} from "@/data/dummy";
-import {transactionColumns} from "@/utils/columns";
+import {PlusIcon} from "../Icons/PlusIcon";
+import {VerticalDotsIcon} from "../Icons/VerticalDotsIcon";
+import {ChevronDownIcon} from "../Icons/ChevronDownIcon";
+import {SearchIcon} from "../Icons/SearchIcon";
+import {EyeIcon} from "../Icons/EyeIcon";
+import {EditIcon} from "../Icons/EditIcon";
+import {DeleteIcon} from "../Icons/DeleteIcon";
+import {students} from "@/data/dummy";
+import {studentColumns} from "@/utils/columns";
 import {statusOptions} from "@/data/data";
 import {capitalize} from "@/utils/utils";
-import {Transaction} from "@/types/objects"
+import AddStudentModal from "./AddStudentModal";
 
 const statusColorMap: Record<string, ChipProps["color"]> = {
-  send: "danger",
-  receive: "success"
+  active: "success",
+  inactive: "secondary",
+  restricted: "warning",
+  banned: "danger",
 };
 
-const INITIAL_VISIBLE_COLUMNS = ["TransactionId", "Student", "TransactionDate", "TransactionAmount", "actions"];
+const INITIAL_VISIBLE_COLUMNS = ["StudentName", "StudentId", "StudentBalance", "StudentStatus", "actions"];
 
-export default function DataTable({ transactions }: { transactions: Transaction[] }) {
+type Student = typeof students[0]
+
+export default function DataTable({ students }: { students: Student[] }) {
   const [filterValue, setFilterValue] = React.useState("");
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
@@ -59,22 +62,27 @@ export default function DataTable({ transactions }: { transactions: Transaction[
   const hasSearchFilter = Boolean(filterValue);
 
   const headerColumns = React.useMemo(() => {
-    if (visibleColumns === "all") return transactionColumns;
+    if (visibleColumns === "all") return studentColumns;
 
-    return transactionColumns.filter((column) => Array.from(visibleColumns).includes(column.uid));
+    return studentColumns.filter((column) => Array.from(visibleColumns).includes(column.uid));
   }, [visibleColumns]);
 
   const filteredItems = React.useMemo(() => {
-    let filteredTransactions = [...transactions];
+    let filteredStudents = [...students];
 
     if (hasSearchFilter) {
-      filteredTransactions = filteredTransactions.filter((transactions) =>
-        transactions.TransactionDate.includes(filterValue.toLowerCase()),
+      filteredStudents = filteredStudents.filter((student) =>
+        student.StudentName.toLowerCase().includes(filterValue.toLowerCase()),
+      );
+    }
+    if (statusFilter !== "all" && Array.from(statusFilter).length !== statusOptions.length) {
+      filteredStudents = filteredStudents.filter((student) =>
+        Array.from(statusFilter).includes(student.StudentStatus),
       );
     }
 
-    return filteredTransactions;
-  }, [transactions, hasSearchFilter, filterValue]);
+    return filteredStudents;
+  }, [students, hasSearchFilter, statusFilter, filterValue]);
 
   const pages = Math.ceil(filteredItems.length / rowsPerPage);
 
@@ -86,46 +94,40 @@ export default function DataTable({ transactions }: { transactions: Transaction[
   }, [page, filteredItems, rowsPerPage]);
 
   const sortedItems = React.useMemo(() => {
-    return [...items].sort((a: Transaction, b: Transaction) => {
-      const first = a[sortDescriptor.column as keyof Transaction] as number;
-      const second = b[sortDescriptor.column as keyof Transaction] as number;
+    return [...items].sort((a: Student, b: Student) => {
+      const first = a[sortDescriptor.column as keyof Student] as number;
+      const second = b[sortDescriptor.column as keyof Student] as number;
       const cmp = first < second ? -1 : first > second ? 1 : 0;
 
       return sortDescriptor.direction === "descending" ? -cmp : cmp;
     });
   }, [sortDescriptor, items]);
 
-  const renderCell = React.useCallback((transaction: Transaction, columnKey: React.Key) => {
-    const cellValue = transaction[columnKey as keyof Transaction];
+  const renderCell = React.useCallback((student: Student, columnKey: React.Key) => {
+    const cellValue = student[columnKey as keyof Student];
 
     switch (columnKey) {
-      case "Student":
+      case "StudentName":
         return (
           <User
-            description={transaction.StudentId}
-            name={transaction.StudentName}
+            //avatarProps={{radius: "lg", src: student.avatar}}
+            description={student.StudentEmail}
+            name={cellValue}
           >
-            {transaction.StudentId}
+            {student.StudentEmail}
           </User>
         );
-      case "TransactionAmount":
+      case "StudentBalance":
         return (
           <div className="flex flex-row">
-            <span className={`text-lg text-${statusColorMap[transaction.TransactionType]} cursor-pointer active:opacity-50`}>                
-            <>
-              {transaction.TransactionType === 'send' && <MinusIcon />}
-              {transaction.TransactionType === 'receive' && <PlusIcon />}
-            </>
-            </span>
             <p className="text-bold text-base capitalize">{cellValue.toLocaleString('en-US', { style: 'currency', currency: 'PHP', maximumFractionDigits: 2 })}</p>
           </div>
         );
-      case "TransactionDate":
+      case "StudentStatus":
         return (
-          <div className="flex flex-col">
-            <p className="text-bold text-sm capitalize">{cellValue}</p>
-            <p className="text-bold text-sm capitalize text-default-400">{transaction.TransactionTime}</p>
-          </div>
+          <Chip className="capitalize" color={statusColorMap[student.StudentStatus]} size="sm" variant="flat">
+            {cellValue}
+          </Chip>
         );
       case "actions":
         return (
@@ -135,12 +137,12 @@ export default function DataTable({ transactions }: { transactions: Transaction[
                 <EyeIcon />
               </span>
             </Tooltip>
-            <Tooltip content="Edit transaction">
+            <Tooltip content="Edit student">
               <span className="text-lg text-default-400 cursor-pointer active:opacity-50">
                 <EditIcon />
               </span>
             </Tooltip>
-            <Tooltip color="danger" content="Delete transaction">
+            <Tooltip color="danger" content="Delete student">
               <span className="text-lg text-danger cursor-pointer active:opacity-50">
                 <DeleteIcon />
               </span>
@@ -190,7 +192,7 @@ export default function DataTable({ transactions }: { transactions: Transaction[
           <Input
             isClearable
             className="w-full sm:max-w-[44%]"
-            placeholder="Search by student number..."
+            placeholder="Search by name..."
             startContent={<SearchIcon />}
             value={filterValue}
             onClear={() => onClear()}
@@ -232,20 +234,18 @@ export default function DataTable({ transactions }: { transactions: Transaction[
                 selectionMode="multiple"
                 onSelectionChange={setVisibleColumns}
               >
-                {transactionColumns.map((column) => (
+                {studentColumns.map((column) => (
                   <DropdownItem key={column.uid} className="capitalize">
                     {capitalize(column.name)}
                   </DropdownItem>
                 ))}
               </DropdownMenu>
             </Dropdown>
-            <Button color="primary" endContent={<PlusIcon />}>
-              Add New
-            </Button>
+            <AddStudentModal />
           </div>
         </div>
         <div className="flex justify-between items-center">
-          <span className="text-default-400 text-small">Total {transactions.length} transactions</span>
+          <span className="text-default-400 text-small">Total {students.length} students</span>
           <label className="flex items-center text-default-400 text-small">
             Rows per page:
             <select
@@ -260,7 +260,7 @@ export default function DataTable({ transactions }: { transactions: Transaction[
         </div>
       </div>
     );
-  }, [filterValue, onSearchChange, statusFilter, visibleColumns, transactions.length, onRowsPerPageChange, onClear]);
+  }, [filterValue, onSearchChange, statusFilter, visibleColumns, students.length, onRowsPerPageChange, onClear]);
 
   const bottomContent = React.useMemo(() => {
     return (
@@ -290,6 +290,8 @@ export default function DataTable({ transactions }: { transactions: Transaction[
       </div>
     );
   }, [selectedKeys, filteredItems.length, page, pages, onPreviousPage, onNextPage]);
+
+  console.log("TEST")
   return (
     <Table
       aria-label="Example table with custom cells, pagination and sorting"
@@ -318,9 +320,9 @@ export default function DataTable({ transactions }: { transactions: Transaction[
           </TableColumn>
         )}
       </TableHeader>
-      <TableBody emptyContent={"No transactions found"} items={sortedItems}>
+      <TableBody emptyContent={"No students found"} items={sortedItems}>
         {(item) => (
-          <TableRow key={item.TransactionId}>
+          <TableRow key={item.StudentId}>
             {(columnKey) => <TableCell>{renderCell(item, columnKey)}</TableCell>}
           </TableRow>
         )}
