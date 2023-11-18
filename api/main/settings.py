@@ -82,14 +82,6 @@ WSGI_APPLICATION = 'main.wsgi.application'
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'transactions_db',
-        'USER': 'postgres',
-        'PASSWORD': '#PanjilPostgres1428',
-        'HOST': 'localhost',
-        'PORT': '5432'
-    }
 }
 
 

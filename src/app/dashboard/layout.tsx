@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 }
 
 
-export default function AdminLayout({
+export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
@@ -21,7 +21,6 @@ export default function AdminLayout({
         <body className={inter.className}>
           <Providers>
             <section>
-              <AdminNavbar />
               {children}
             </section>
           </Providers>

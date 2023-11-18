@@ -3,6 +3,12 @@
 import React from "react";
 import {Navbar, NavbarBrand, NavbarContent, NavbarItem, Link, Button} from "@nextui-org/react";
 import { usePathname} from 'next/navigation';
+import {
+  getKindeServerSession,
+  RegisterLink,
+  LoginLink,
+  LogoutLink,
+} from "@kinde-oss/kinde-auth-nextjs/server";
 
 export default function AdminNavbar() {
   const pathname = usePathname()
@@ -26,36 +32,41 @@ export default function AdminNavbar() {
       }}
     >
       <NavbarBrand>
-        
         <p className="font-bold text-inherit">ePLE-T</p>
       </NavbarBrand>
       <NavbarContent className="hidden sm:flex gap-4" justify="center">
-        <NavbarItem isActive={pathname === "/admin"}>
-          <Link color={`${pathname === "/admin" ? "primary" : "foreground"}`} href="/admin">
+        <NavbarItem isActive={pathname === "/dashboard"}>
+          <Link color={`${pathname === "/dashboard" ? "primary" : "foreground"}`} href="/dashboard">
             Home
           </Link>
         </NavbarItem>
-        <NavbarItem isActive={pathname === "/admin/students"}>
-          <Link color={`${pathname === "/admin/students" ? "primary" : "foreground"}`} href="/admin/students">
+        <NavbarItem isActive={pathname === "/dashboard/students"}>
+          <Link color={`${pathname === "/dashboard/students" ? "primary" : "foreground"}`} href="/dashboard/students">
             Students
           </Link>
         </NavbarItem>
-        <NavbarItem isActive={pathname === "/admin/transactions"}>
-          <Link color={`${pathname === "/admin/transactions" ? "primary" : "foreground"}`} href="/admin/transactions">
+        <NavbarItem isActive={pathname === "/dashboard/transactions"}>
+          <Link color={`${pathname === "/dashboard/transactions" ? "primary" : "foreground"}`} href="/dashboard/transactions">
             Transactions
           </Link>
         </NavbarItem>
       </NavbarContent>
       <NavbarContent justify="end">
-        <NavbarItem className="hidden lg:flex">
-          <Link href="#">Login</Link>
-        </NavbarItem>
-        <NavbarItem>
-          <Button as={Link} color="primary" href="#" variant="flat">
-            Sign Up
-          </Button>
-        </NavbarItem>
-      </NavbarContent>
+          <NavbarItem className="hidden lg:flex">
+            <LoginLink>
+              <Button color="default" variant="light">
+                Sign In
+              </Button>
+            </LoginLink>
+          </NavbarItem>
+          <NavbarItem>
+            <RegisterLink >
+              <Button color="primary" variant="flat">
+                Sign Up
+              </Button>
+            </RegisterLink>
+          </NavbarItem>
+        </NavbarContent>
     </Navbar>
   );
 }
