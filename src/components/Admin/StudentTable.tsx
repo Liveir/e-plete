@@ -51,7 +51,7 @@ export default function DataTable({ students }: { students: Student[] }) {
   const [selectedKeys, setSelectedKeys] = React.useState<Selection>(new Set([]));
   const [visibleColumns, setVisibleColumns] = React.useState<Selection>(new Set(INITIAL_VISIBLE_COLUMNS));
   const [statusFilter, setStatusFilter] = React.useState<Selection>("all");
-  const [rowsPerPage, setRowsPerPage] = React.useState(5);
+  const [rowsPerPage, setRowsPerPage] = React.useState(10);
   const [sortDescriptor, setSortDescriptor] = React.useState<SortDescriptor>({
     column: "age",
     direction: "ascending",
@@ -251,10 +251,11 @@ export default function DataTable({ students }: { students: Student[] }) {
             <select
               className="bg-transparent outline-none text-default-400 text-small"
               onChange={onRowsPerPageChange}
+              defaultValue={10}
             >
               <option value="5">5</option>
               <option value="10">10</option>
-              <option value="15">15</option>
+              <option value="50">50</option>
             </select>
           </label>
         </div>
@@ -299,7 +300,7 @@ export default function DataTable({ students }: { students: Student[] }) {
       bottomContent={bottomContent}
       bottomContentPlacement="outside"
       classNames={{
-        wrapper: "max-h-[382px]",
+        wrapper: "max-h-[510px]",
       }}
       selectedKeys={selectedKeys}
       selectionMode="multiple"
@@ -308,6 +309,7 @@ export default function DataTable({ students }: { students: Student[] }) {
       topContentPlacement="outside"
       onSelectionChange={setSelectedKeys}
       onSortChange={setSortDescriptor}
+      isCompact
     >
       <TableHeader columns={headerColumns}>
         {(column) => (

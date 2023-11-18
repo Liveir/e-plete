@@ -28,7 +28,7 @@ interface AppProps {
   transactions_length: number
 }
 
-const AddTransactionModal: FC<AppProps> = ({transactions_length}) => {
+const AddTransactionModal: FC<AppProps> = ({transactions_length}: AppProps) => {
 // ** STATE DECLARATIONS
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
   const [transactionType, setTransactionType] = React.useState("deposit")
@@ -36,7 +36,6 @@ const AddTransactionModal: FC<AppProps> = ({transactions_length}) => {
   const [id, setId] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [amount, setAmount] = React.useState("");
-  const [isValid, setValid] = React.useState("false")
   const [isSubmitted, setSubmitted] = useState<boolean>(false);
   const [message, setMessage] = useState<string | null>(null);
   const [submissionStatus, setStatus] = useState<string | null>(null);
@@ -63,11 +62,9 @@ const AddTransactionModal: FC<AppProps> = ({transactions_length}) => {
     if (!isLoading && !isError && student) {
       setName(student.StudentName);
       setEmail(student.StudentEmail);
-      setValid("true")
     } else {
       setName('');
       setEmail('');
-      setValid("false")
     }
   },[isLoading, isError, student])
 
@@ -144,19 +141,20 @@ const AddTransactionModal: FC<AppProps> = ({transactions_length}) => {
   };
 
   useEffect(() => {
-    // Cleanup function to reset state when the component unmounts
+    if(!isOpen && isSubmitted) {
+      location.replace(location.href)
+    }
     return () => {
       setTransactionType("deposit");
       setName("");
       setId("");
       setEmail("");
       setAmount("");
-      setValid("false");
       setSubmitted(false);
       setMessage(null);
       setStatus(null);
     };
-  }, [isOpen]);
+  }, [isOpen, isSubmitted]);
 
   return (
     <>
@@ -234,7 +232,6 @@ const AddTransactionModal: FC<AppProps> = ({transactions_length}) => {
                 <Button
                  color="primary" 
                  onPress={() => { handleSubmit(); }} 
-                 disabled={isValid.trim() === 'false'}
                  >
                   Submit
                 </Button>

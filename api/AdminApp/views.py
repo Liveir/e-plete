@@ -7,10 +7,10 @@ from AdminApp.models import Students, Transactions
 from AdminApp.serializers import StudentSerializer, TransactionSerializer
 
 @csrf_exempt
-def studentApi(request, pk=0):
+def studentApi(request, StudentId=0):
     if request.method=='GET':
-        if (pk):
-            students = Students.objects.get(StudentId=pk)
+        if (StudentId):
+            students = Students.objects.get(StudentId=StudentId)
             students_serializer = StudentSerializer(students,many=False)
             return JsonResponse(students_serializer.data,safe=False)
         else:
@@ -35,15 +35,15 @@ def studentApi(request, pk=0):
         return JsonResponse("Failed to update")
     
     elif request.method=='DELETE':
-        student = Students.objects.get(StudentId=pk)
+        student = Students.objects.get(StudentId=StudentId)
         student.delete()
         return JsonResponse("Deleted successfully",safe=False)
     
 @csrf_exempt
-def transactionHistoryApi(request, pk=0):
+def transactionHistoryApi(request, StudentId=0):
     if request.method == 'GET':
-        if (pk):
-            student = Students.objects.get(StudentId=pk)
+        if (StudentId):
+            student = Students.objects.get(StudentId=StudentId)
             transactions = student.transactions.all()
             transactions_serializer = TransactionSerializer(transactions, many=True)
             return JsonResponse(transactions_serializer.data, safe=False)
@@ -54,11 +54,11 @@ def transactionHistoryApi(request, pk=0):
 
 
 @csrf_exempt
-def transactionApi(request, pk=0):
+def transactionApi(request, TransactionId=0):
     if request.method=='GET':
         transaction_data = []
-        if pk:
-            transaction = Transactions.objects.get(TransactionId=pk)
+        if (TransactionId):
+            transaction = Transactions.objects.get(TransactionId=TransactionId)
             transaction_data = {
                 'TransactionId': transaction.TransactionId,
                 'TransactionDate': transaction.TransactionDate,
@@ -110,6 +110,7 @@ def transactionApi(request, pk=0):
 
         # Create the Transaction record
         transaction = Transactions(
+            TransactionId=transaction_data['TransactionId'],
             TransactionDate=transaction_data['TransactionDate'],
             TransactionTime=transaction_data['TransactionTime'],
             TransactionAmount=transaction_data['TransactionAmount'],
@@ -129,7 +130,7 @@ def transactionApi(request, pk=0):
         student_data = transaction_data.pop('Student')
 
         # Get the existing records
-        transaction = Transactions.objects.get(TransactionId=pk)
+        transaction = Transactions.objects.get(TransactionId=TransactionId)
         student = Students.objects.get(StudentId=student_data['StudentId'])
         
         # Update the Transaction record
@@ -150,6 +151,6 @@ def transactionApi(request, pk=0):
         return JsonResponse(message, safe=False)
     
     elif request.method=='DELETE':
-        transaction = Transactions.objects.get(TransactionId=pk)
+        transaction = Transactions.objects.get(TransactionId=TransactionId)
         transaction.delete()
         return JsonResponse("Deleted successfully",safe=False)

@@ -35,7 +35,6 @@ const AddStudentModal: FC<AppProps> = ({}) => {
   const [id, setId] = React.useState("");
   const [email, setEmail] = React.useState("");
   const [amount, setAmount] = React.useState("");
-  const [isValid, setValid] = React.useState("false")
   const [isSubmitted, setSubmitted] = useState<boolean>(false);
   const [message, setMessage] = useState<string | null>(null);
   const [submissionStatus, setStatus] = useState<string | null>(null);
@@ -49,12 +48,7 @@ const AddStudentModal: FC<AppProps> = ({}) => {
 
   useEffect(() => {
     setEmail(`${id}@usc.edu.ph`);
-    if (name !== '' && id !== '') {
-        setValid("true")
-    } else {
-        setValid("false")
-    }
-  },[name, id])
+  },[id])
 
   // ** ON SUBMIT 
 
@@ -74,22 +68,28 @@ const AddStudentModal: FC<AppProps> = ({}) => {
   const handleSubmit = async () => {
     setMessage(null);
     try {
-      const res = await checkStudent(Number(id))
-      const newStudent = createStudent();
-      alert(JSON.stringify(newStudent, null, 2))
-      if (res.status === "error") {
-        const studentResponse = await addStudent(JSON.stringify(newStudent)) 
-
-        if (studentResponse.status === "success") {
-          setMessage("Student added successfully!");
-          setStatus(studentResponse.status)
+      if (id === "" || name === "") {
+        setMessage("Cannot leave fields empty.")
+        setStatus("error")
+      }
+      else {
+        const res = await checkStudent(Number(id))
+        const newStudent = createStudent();
+        alert(JSON.stringify(newStudent, null, 2))
+        if (res.status === "error") {
+          const studentResponse = await addStudent(JSON.stringify(newStudent)) 
+  
+          if (studentResponse.status === "success") {
+            setMessage("Student added successfully!");
+            setStatus(studentResponse.status)
+          } else {
+            setMessage("Student not added. Please try again.");
+          }
         } else {
-          setMessage("Student not added. Please try again.");
+          updateStudent(newStudent)
+          setMessage("Student exists. Updated details.");
+          setStatus(res.status)
         }
-      } else {
-        updateStudent(newStudent)
-        setMessage("Student exists. Updated details.");
-        setStatus(res.status)
       }
     } catch (error) {
       console.error("Error updating student:", error);
@@ -100,14 +100,15 @@ const AddStudentModal: FC<AppProps> = ({}) => {
   };
 
   useEffect(() => {
-    // Cleanup function to reset state when the component unmounts
+    if(!isOpen && isSubmitted) {
+      location.replace(location.href)
+    }
     return () => {
       setStatusType("active");
       setName("");
       setId("");
       setEmail("");
       setAmount("");
-      setValid("false");
       setSubmitted(false);
       setMessage(null);
       setStatus(null);
@@ -163,7 +164,6 @@ const AddStudentModal: FC<AppProps> = ({}) => {
                 <Button
                  color="primary" 
                  onPress={() => { handleSubmit(); }} 
-                 disabled={isValid.trim() === 'false'}
                  >
                   Submit
                 </Button>
