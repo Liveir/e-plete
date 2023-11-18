@@ -113,7 +113,7 @@ const AddStudentModal: FC<AppProps> = ({}) => {
       setMessage(null);
       setStatus(null);
     };
-  }, [isOpen]);
+  }, [isOpen, isSubmitted]);
 
   return (
     <>
