@@ -67,8 +67,8 @@ export default async function RootLayout({
             // Content to display when isAuthenticated is false
             <>
               {pages.map((page) => (
-                <NavbarItem key={page.path} isActive>
-                  <Link href={page.path}>
+                <NavbarItem key={page.path}>
+                  <Link href={page.path}  className='text-white'>
                     {page.label}
                   </Link>
                 </NavbarItem>

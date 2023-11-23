@@ -3,18 +3,18 @@ import axios from 'axios';
 // ** GET
 
 export async function fetchAllStudents() {
-	const res = await axios.get('http://127.0.0.1:8000/student');
+	const res = await axios.get('http://192.168.0.105:8000/student');
 	return res.data;
 }
 
 export async function fetchStudent(id: number) {
-	const res = await axios.get(`http://127.0.0.1:8000/student/${id.toString()}`);
+	const res = await axios.get(`http://192.168.0.105:8000/student/${id.toString()}`);
 	return res.data;
 }
 
 export async function checkStudent(id: number) {
 	try {
-		await axios.get(`http://127.0.0.1:8000/student/${id.toString()}`);
+		await axios.get(`http://192.168.0.105:8000/student/${id.toString()}`);
 		return { status: 'success'};
 	  } catch (error: any) {
 		return { status: 'error'};
@@ -22,14 +22,14 @@ export async function checkStudent(id: number) {
 	}
 
 export async function fetchAllTransactions() {
-	const res = await axios.get('http://127.0.0.1:8000/transaction');
+	const res = await axios.get('http://192.168.0.105:8000/transaction');
 	return res.data;
 }
 
 // ** POST
 export async function addStudent(student: any) {
 	try {
-	  const res = await axios.post('http://127.0.0.1:8000/student/', student);
+	  const res = await axios.post('http://192.168.0.105:8000/student/', student);
 	  return { status: 'success', data: res.data };
 	} catch (error: any) {
 	  return { status: 'error'};
@@ -38,7 +38,7 @@ export async function addStudent(student: any) {
 
 export async function addTransaction(transaction: any) {
 	try {
-	  const res = await axios.post('http://127.0.0.1:8000/transaction/', transaction);
+	  const res = await axios.post('http://192.168.0.105:8000/transaction/', transaction);
 	  return { status: 'success', data: res.data };
 	} catch (error: any) {
 	  return { status: 'error'};
@@ -49,7 +49,7 @@ export async function addTransaction(transaction: any) {
 
 export async function updateStudent(student: any) {
 	try {
-	  const res = await axios.put('http://127.0.0.1:8000/student/', student);
+	  const res = await axios.put('http://192.168.0.105:8000/student/', student);
 	  return { status: 'success', data: res.data };
 	} catch (error: any) {
 	  return { status: 'error'};

@@ -13,7 +13,7 @@ class Students(models.Model):
 
 class Transactions(models.Model):
     transaction_id = models.AutoField(primary_key=True)
-    TransactionId = models.IntegerField(unique=True)
+    TransactionId = models.BigIntegerField(unique=True)
     TransactionDate = models.CharField(max_length=500)
     TransactionTime = models.CharField(max_length=500)
     TransactionAmount = models.FloatField(default=0)
